@@ -33,9 +33,11 @@ CSV gồm các cột `tracking_id,cod,shipping_fee,shop_amount`; số tiền là
 
 Sau khi cài đặt, chạy `python -m hybrid_crypto.gui`. Trong cửa sổ:
 
-1. Chọn một thư mục trống rồi bấm **Tạo khóa mới**; bấm **Dùng CSV mẫu** và giữ mã phiên, mã shop mặc định.
-2. Bấm **Chốt CSV thành phiên mới** và chọn tên file JSON để lưu. Có thể dùng **Mở và xác minh phiên** để mở lại bằng cùng thư mục khóa.
-3. Chọn một dòng, nhập phí và tiền shop nhận mới rồi bấm **Kiểm tra bản sao**. Với VD001, nhập `75000` và `225000`.
-4. Bấm **Chốt thành phiên bản mới** và lưu vào file khác. Dùng **Đối chiếu phiên trước** khi muốn kiểm tra liên kết sau khi mở lại.
+1. Chọn một thư mục trống rồi bấm **Tạo khóa**; bấm **Dùng mẫu** và giữ mã phiên, mã shop mặc định.
+2. Bấm **Chốt & lưu** và chọn tên file JSON để lưu. Có thể dùng **Mở phiên** để mở lại bằng cùng thư mục khóa.
+3. Chọn một dòng, nhập phí và tiền shop nhận mới rồi bấm **Kiểm tra**. Với VD001, nhập `75000` và `225000`.
+4. Bấm **Lưu phiên bản mới** và lưu vào file khác. Dùng **Đối chiếu phiên trước** khi muốn kiểm tra liên kết sau khi mở lại.
 
 Giao diện dùng Tkinter, thường đi kèm Python; trên Linux có thể cần cài gói Tkinter của hệ điều hành. Khóa demo lưu không mã hóa, hãy giữ riêng thư mục khóa.
+
+Nút **Trợ giúp** mở hướng dẫn ngắn; **Chi tiết** hiển thị Merkle root và liên kết phiên.
