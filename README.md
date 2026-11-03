@@ -1,27 +1,30 @@
-# Thực nghiệm mật mã lai AES–RSA
+# Mô phỏng đối soát COD
 
-Bộ khung dự án nghiên cứu dựa trên Fauzi, Farikhin và Jie, “Enhancing system integrity with Merkle tree: efficient hybrid cryptography using RSA and AES in hash chain systems”, IJECE 15(6), 2025, tr. 5679–5689, DOI [10.11591/ijece.v15i6.pp5679-5689](https://doi.org/10.11591/ijece.v15i6.pp5679-5689).
+Mô phỏng bên phát hành chốt CSV, mã hóa từng bản ghi cho shop và xác minh bản ghi bằng Merkle proof. Đây là ứng dụng nghiên cứu dựa trên bài báo, không phải hệ thống GHN.
 
-**Trạng thái:** mới có cấu trúc và kế hoạch thực nghiệm; chưa có mã mã hóa, chương trình chạy, dữ liệu hay kết quả. Chưa thể chạy lại các phép đo của bài báo. Không cần cài thư viện ở giai đoạn này. Python là lựa chọn đề xuất cho các bước triển khai tiếp theo, phù hợp chạy trên máy cá nhân.
+## Cài đặt và chạy demo
 
-```text
-src/hybrid_crypto/
-  crypto/       AES, RSA và quản lý khóa dự kiến
-  integrity/    chuỗi băm, cây Merkle và bằng chứng dự kiến
-  pipeline/     ghép khối, mã hóa, giải mã và xác minh dự kiến
-experiments/
-  configs/      cấu hình cho các lượt thực nghiệm dự kiến
-  README.md     kịch bản và cách ghi nhận kết quả
-data/
-  input/        dữ liệu đầu vào do người dùng cung cấp
-  generated/    dữ liệu tổng hợp được tạo cục bộ
-results/
-  raw/          số liệu đo cục bộ
-  figures/      biểu đồ cục bộ
-tests/
-  unit/         kiểm thử từng thành phần dự kiến
-  integration/  kiểm thử toàn bộ quy trình dự kiến
- docs/          thiết kế, giả định và giới hạn tái lập
+Cần Python 3.10 trở lên. Tại thư mục dự án:
+
+```bash
+python -m venv .venv
+# macOS/Linux: source .venv/bin/activate
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install -e .
+python experiments/tamper_demo.py
+python -m unittest discover -s tests -v
 ```
 
-Các thư mục chưa có mã được giữ trong Git bằng tệp `.gitkeep`. Xem [kế hoạch thực nghiệm](experiments/README.md) và [ghi chú thiết kế](docs/design.md) trước khi triển khai. Dữ liệu, kết quả và khóa tạo cục bộ được loại khỏi Git bằng `.gitignore`.
+Demo dùng dữ liệu giả lập, sửa phí VD001 từ 25.000 thành 75.000 đồng và tiền nhận từ 275.000 thành 225.000 đồng. Phép tính vẫn đúng nhưng proof không khớp root gốc; sau đó demo tạo phiên bản mới.
+
+## Chạy từng bước
+
+```bash
+python -m hybrid_crypto keys keys
+python -m hybrid_crypto seal data/input/sample_cod.csv results/raw/ds001-v1.json --session DS001 --shop SHOP001 --issuer-private keys/issuer_private.pem --issuer-public keys/issuer_public.pem --shop-public keys/shop_public.pem
+python -m hybrid_crypto open results/raw/ds001-v1.json --shop-private keys/shop_private.pem --issuer-public keys/issuer_public.pem
+```
+
+Tạo phiên bản tiếp theo bằng lệnh `seal` tương tự, dùng CSV đã sửa, tên file đầu ra mới và thêm `--previous results/raw/ds001-v1.json`. Khi mở phiên bản mới, thêm `--previous` để đối chiếu liên kết. File đầu ra không được ghi đè. Dùng `python -m hybrid_crypto --help` để xem các lệnh.
+
+CSV gồm các cột `tracking_id,cod,shipping_fee,shop_amount`; số tiền là số nguyên đồng. Giữ bí mật khóa riêng và xác nhận khóa công khai của bên phát hành qua kênh tin cậy. Mã chỉ phục vụ mô phỏng; xem [thiết kế](docs/design.md) để biết giới hạn.

@@ -1,15 +1,9 @@
-# Thiết kế dự kiến và giới hạn tái lập
+# Thiết kế mô phỏng
 
-## Ánh xạ bài báo
+Mỗi dòng CSV là một bản ghi. Dữ liệu được chuẩn hóa bằng JSON UTF-8 với thứ tự khóa cố định; hash lá bao gồm nội dung, mã phiên, mã shop, phiên bản và vị trí. Cây Merkle dùng SHA-256, tiền tố phân biệt lá/nút và nhân đôi nút cuối khi tầng có số nút lẻ.
 
-- Mục 3.1–3.2: AES mã hóa từng khối; RSA bảo vệ khóa AES. Mã dự kiến đặt trong `src/hybrid_crypto/crypto/`.
-- Mục 3.3–3.4 và 4: băm khối, tạo khóa kế tiếp, cây Merkle, gốc và bằng chứng. Mã dự kiến đặt trong `src/hybrid_crypto/integrity/`; quy trình tổng hợp trong `pipeline/`.
-- Mục 5.1: kiểm tra dữ liệu hợp lệ và sửa khối thứ 6 trong 10 khối. Mục 5.2, Bảng 2: so sánh thời gian AES+RSA với Twofish+ElGamal cho 1–10 khối. Thực nghiệm dự kiến đặt trong `experiments/`.
+Mỗi bản ghi dùng khóa AES-256-GCM ngẫu nhiên và nonce riêng; khóa AES được bọc bằng RSA-OAEP SHA-256 của shop. Bên phát hành ký thông tin phiên bằng RSA-PSS SHA-256, gồm root và hash thông tin đã ký của phiên bản trước. Bên nhận cần khóa công khai phát hành đáng tin cậy. Proof kiểm tra từng bản ghi sau giải mã với root đã xác thực.
 
-## Các quyết định còn thiếu
+Đây là điều chỉnh từ mã giả trong Fauzi và cộng sự, DOI [10.11591/ijece.v15i6.pp5679-5689](https://doi.org/10.11591/ijece.v15i6.pp5679-5689): khóa AES ngẫu nhiên, chuỗi liên kết phiên bản thay vì dẫn xuất khóa từ dữ liệu. Không khẳng định tái lập phép đo trong bài báo.
 
-Bài báo không xác định đầy đủ chế độ AES, padding RSA, hàm băm, định dạng dữ liệu, kích thước khối, quy tắc nút lẻ của cây Merkle, môi trường đo và quy trình đo chi tiết. Không suy diễn các giá trị này là thông số gốc; khi triển khai cần ghi rõ giả định, phiên bản thư viện và cấu hình từng lần chạy. Dữ liệu dẫn xuất của tác giả được cung cấp theo yêu cầu, nên phải dùng dữ liệu tự tạo hoặc liên hệ tác giả để tái lập.
-
-Mã giả mục 4 tạo khóa AES tiếp theo từ hash của dữ liệu và có đoạn văn nói mã hóa bằng khóa RSA riêng, trong khi mã giả dùng khóa công khai. Cần tách bản mô phỏng nghiên cứu khỏi thiết kế an toàn: dữ liệu có thể đoán được không phải nguồn khóa bí mật, mã hóa khóa AES phải dùng khóa công khai của bên nhận, và gốc Merkle cần được xác thực qua kênh tin cậy. Mô phỏng đúng mã giả không chứng minh an toàn cho ứng dụng thực tế.
-
-Hiệu ứng các khối sau khối 6 bị đánh dấu không hợp lệ phải được kiểm tra theo quy tắc chuỗi đã triển khai; Merkle proof riêng của một lá không tự chứng minh mọi lá sau đều sai. Hai thuật toán Twofish+ElGamal là hướng so sánh bổ sung và cần được triển khai, kiểm chứng riêng trước khi so sánh.
+Liên kết chỉ được đối chiếu với phiên trước khi cung cấp `--previous`; việc xác định phiên bản mới nhất và giữ mốc đáng tin cậy là trách nhiệm người dùng. Chữ ký không chứng minh khoản phí đúng trước khi chốt. Khóa demo lưu không mã hóa và chỉ dùng cục bộ với dữ liệu giả lập.

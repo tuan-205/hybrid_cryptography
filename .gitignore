@@ -14,3 +14,6 @@ __pycache__/
 !/results/raw/.gitkeep
 /results/figures/*
 !/results/figures/.gitkeep
+!/data/input/sample_cod.csv
+/keys/
+/results/*.json
