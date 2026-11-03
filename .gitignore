@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.coverage
+*.pem
+*.key
+.env
+/data/input/*
+!/data/input/.gitkeep
+/data/generated/*
+!/data/generated/.gitkeep
+/results/raw/*
+!/results/raw/.gitkeep
+/results/figures/*
+!/results/figures/.gitkeep
