@@ -13,7 +13,7 @@ def b64(data):
 def unb64(value):
     return base64.b64decode(value, validate=True)
 
-
+# tao cap khoa cong khai va khoa ca nhan
 def generate_keypair():
     private = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     return (private.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()),
@@ -31,18 +31,24 @@ def load_public(data):
 def oaep():
     return padding.OAEP(mgf=padding.MGF1(hashes.SHA256()), algorithm=hashes.SHA256(), label=None)
 
-
+# ma hoa lai AES-RSA
 def encrypt(data, public_key, aad):
+    # sinh khoa AES-256 va nonce ngau nhien
     key = AESGCM.generate_key(bit_length=256)
     nonce = os.urandom(12)
-    return {"nonce": b64(nonce), "ciphertext": b64(AESGCM(key).encrypt(nonce, data, aad)), "wrapped_key": b64(public_key.encrypt(key, oaep()))}
+    # ma hoa ban ghi bang AES-GCM, boc khoa AES bang khoa cong khai RSA cua shop
+    return {"nonce": b64(nonce), 
+            "ciphertext": b64(AESGCM(key).encrypt(nonce, data, aad)), 
+            "wrapped_key": b64(public_key.encrypt(key, oaep()))}
 
-
+# giai ma
 def decrypt(item, private_key, aad):
+    # dung khoa rieng RSA cua shop -> lay khoa AES
     key = private_key.decrypt(unb64(item["wrapped_key"]), oaep())
+    # giai ma ban ghi bang AES-GCM vua lay duoc
     return AESGCM(key).decrypt(unb64(item["nonce"]), unb64(item["ciphertext"]), aad)
 
-
+# ky va xac minh bang RSA-PSS voi SHA-256
 def sign(data, private_key):
     return b64(private_key.sign(data, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.DIGEST_LENGTH), hashes.SHA256()))
 

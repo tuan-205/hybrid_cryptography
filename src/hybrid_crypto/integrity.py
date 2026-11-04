@@ -14,7 +14,7 @@ def leaf(data):
 def parent(left, right):
     return digest(b"\x01" + left + right)
 
-
+# xay dung cay merkle
 def merkle(data):
     if not data:
         raise ValueError("Khong the tao cay Merkle rong")
@@ -31,19 +31,22 @@ def merkle(data):
             proof.append({"side": "left" if pos % 2 else "right", "hash": (level[sibling] if sibling < len(level) else level[pos]).hex()})
             pos //= 2
         proofs.append(proof)
+    # luu lai level + bang chung cho record
     return levels[-1][0].hex(), proofs
 
-
+# xac thuc bang chung
 def verify_proof(data, index, count, proof, root):
     if type(index) is not int or type(count) is not int or count < 1 or not 0 <= index < count or not isinstance(proof, list):
         return False
     try:
         current = leaf(data)
         pos, width = index, count
+        # tinh lai step tu record -> root
         for step in proof:
             if width <= 1 or set(step) != {"side", "hash"} or step["side"] != ("left" if pos % 2 else "right"):
                 return False
             sibling = bytes.fromhex(step["hash"])
+            # phat hien noi dung khong con khop voi du lieu da chot
             if len(sibling) != 32 or (pos % 2 == 0 and pos + 1 >= width and sibling != current):
                 return False
             current = parent(sibling, current) if pos % 2 else parent(current, sibling)
@@ -53,6 +56,6 @@ def verify_proof(data, index, count, proof, root):
     except (ValueError, TypeError, KeyError):
         return False
 
-
+# tao gia tri bam ngan gon va khong the dao nguoc
 def session_hash(package):
     return digest(canonical({"metadata": package["metadata"], "signature": package["signature"]})).hex()

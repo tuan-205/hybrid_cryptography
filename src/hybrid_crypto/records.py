@@ -4,7 +4,7 @@ import json
 
 FIELDS = ("tracking_id", "cod", "shipping_fee", "shop_amount")
 
-
+# chuan hoa file json thanh UTF-8 -> dong nhat gia tri bam
 def canonical(value):
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
 
@@ -44,6 +44,10 @@ def read_csv(path):
             records.append(row)
     return validate(records)
 
-
+# gan record voi cac gia tri khac truoc khi bam
 def record_bytes(record, metadata, index):
-    return canonical({"record": record, "session_id": metadata["session_id"], "shop_id": metadata["shop_id"], "version": metadata["version"], "index": index})
+    return canonical({"record": record, 
+                      "session_id": metadata["session_id"], 
+                      "shop_id": metadata["shop_id"], 
+                      "version": metadata["version"], 
+                      "index": index})
